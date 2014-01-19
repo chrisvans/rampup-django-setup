@@ -1,7 +1,9 @@
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views import generic
 
 from polls.models import Choice, Poll
@@ -20,6 +22,10 @@ class IndexView(generic.ListView):
             pub_date__lte=timezone.now()
         ).order_by('-pub_date')[:5]
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(IndexView, self).dispatch(*args, **kwargs)
+
 
 class DetailView(generic.DetailView):
     model = Poll
@@ -31,12 +37,21 @@ class DetailView(generic.DetailView):
         """
         return Poll.objects.filter(pub_date__lte=timezone.now())
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(DetailView, self).dispatch(*args, **kwargs)
+
 
 class ResultsView(generic.DetailView):
     model = Poll
     template_name = 'polls/results.html'
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ResultsView, self).dispatch(*args, **kwargs)
 
+
+@login_required
 def vote(request, poll_id):
     p = get_object_or_404(Poll, pk=poll_id)
     try:

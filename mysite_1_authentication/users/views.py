@@ -1,6 +1,6 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 def login_view(request):
     
@@ -45,3 +45,10 @@ def registration_view(request):
 
     else:
         return render(request, 'users/register.html', {})
+
+def logout_view(request):
+    logout(request)
+
+    message = "Now logged out."
+
+    return redirect('/', message=message)
