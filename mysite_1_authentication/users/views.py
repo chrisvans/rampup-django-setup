@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.shortcuts import render
 
 def login_view(request):
@@ -19,7 +20,7 @@ def login_view(request):
         else:
             return render(request, 'users/login.html', 
                 {
-                'error_message': "The credentials provided were incorrect.  If you don't have an account please register.",
+                'message': "The credentials provided were incorrect.  If you don't have an account please register.",
                 })
 
     # If the request.method is not 'POST', then the user has not submitted anything.
@@ -27,4 +28,20 @@ def login_view(request):
         return render(request, 'users/login.html', {})
 
 def registration_view(request):
-    return render(request, 'users/register.html', {})
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+
+        User.objects.create_user(username=username, email=email, password=password)
+
+        message = 'Successfully registered as ' + username + '!  Please login.'
+
+        return render(request, 'users/login.html',
+            {
+            'message': message,
+            })
+
+    else:
+        return render(request, 'users/register.html', {})
